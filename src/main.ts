@@ -1,16 +1,13 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {getConfig} from './config'
+import {updatePostmanApi} from './api'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    const config = getConfig()
+    core.info(`using config: ${JSON.stringify(config)}`)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    await updatePostmanApi(config)
   } catch (error) {
     core.setFailed(error.message)
   }
