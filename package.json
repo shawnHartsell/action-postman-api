@@ -10,6 +10,7 @@
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map",
+    "local-run": "npm run package && node ./dist/index.js",
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
@@ -37,7 +38,7 @@
     "@types/jest": "^26.0.7",
     "@types/node": "^14.0.25",
     "@typescript-eslint/parser": "^3.7.0",
-    "@zeit/ncc": "^0.22.3",
+    "@vercel/ncc": "^0.23.0",
     "eslint": "^7.5.0",
     "eslint-plugin-github": "^4.1.1",
     "eslint-plugin-jest": "^23.18.0",

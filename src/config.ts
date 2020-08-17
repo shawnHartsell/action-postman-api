@@ -1,9 +1,18 @@
 import * as fs from 'fs'
-import {resolve} from 'path'
+import * as path from 'path'
 import * as env from 'dotenv'
 import * as core from '@actions/core'
 
-const envFilePath = resolve(__dirname, '..', '.env')
+/*
+HACK: There is an issue with NCC path re-writing where '..' and '.' are stripped from the compiled/bundled output.
+By using eval, we accomplish two things:
+
+1) NCC will not bundle the local .enc into ./dist. By default, NCC adds files referenced in code using webpack
+2) NCC does not strip the '..' from the path which causes the local .env to be found correctly
+
+See: https://github.com/vercel/ncc/issues/390
+*/
+const envFilePath = eval(`path.resolve(__dirname, '..', './.env')`)
 
 // TODO: eventually support other schemas that Postman accespts like openapi3, raml, and graphql
 export enum PostmanSchemaType {
@@ -31,7 +40,8 @@ export function getConfig(): Config {
     See: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
   */
   core.info(`Checking for local .env in ${envFilePath}`)
-  if (fs.readFileSync(envFilePath)) {
+
+  if (fs.existsSync(envFilePath)) {
     core.info('found .env file. loading env vars')
     const envConfig = env.parse(fs.readFileSync(envFilePath))
 
@@ -48,7 +58,11 @@ export function getConfig(): Config {
     specFileType: PostmanSchemaType.OpenApi2
   }
 
-  c.specFilePath = resolve(__dirname, c.specFilePath)
+  // Note: since this is dynamic, ncc will not try and include the file in dist, which is what we want
+  // There are open issues to potentially fix this, so if this breaks check out the following issue(s):
+  //
+  // https://github.com/vercel/ncc/issues/557
+  c.specFilePath = path.resolve(__dirname, c.specFilePath)
   if (!fs.existsSync(c.specFilePath)) {
     throw new Error(`could not find spec file at ${c.specFilePath}`)
   }

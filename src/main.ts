@@ -11,7 +11,7 @@ async function run(): Promise<void> {
     const client = new PostmanClient(config.postmanApiKey)
     const service = new PostmanService(client)
 
-    core.info('starting Postman api updgarde')
+    core.info('starting Postman api updgrade')
     await service.upgradeApi(config)
   } catch (error) {
     const e = new Error(`could not upgrade api: ${error}`)
