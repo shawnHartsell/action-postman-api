@@ -7,7 +7,8 @@ const envFilePath = resolve(__dirname, '..', '.env')
 
 // TODO: eventually support other schemas that Postman accespts like openapi3, raml, and graphql
 export enum PostmanSchemaType {
-  OpenApi2 = 'openapi2'
+  OpenApi2 = 'openapi2',
+  OpenApi3 = 'openapi3'
 }
 
 export interface Config {

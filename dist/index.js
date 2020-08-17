@@ -1242,205 +1242,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
 /***/ }),
 /* 83 */,
 /* 84 */,
-/* 85 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePostmanApi = void 0;
-const axios_1 = __importDefault(__webpack_require__(53));
-const swagger_parser_1 = __importDefault(__webpack_require__(151));
-const core = __importStar(__webpack_require__(470));
-// import * as fs from 'fs'
-const postmanApiBase = 'https://api.getpostman.com';
-// TODO: handle other types of schemas besides openapi2/3
-function updatePostmanApi(config) {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.info(`validating schema document at ${config.specFilePath}`);
-        const api = yield swagger_parser_1.default.validate(config.specFilePath);
-        core.debug(`validated spec: ${JSON.stringify(api)}`);
-        /*
-       TODO:
-          - retrieve api from id
-          - check for pm version using api version and create if version doesn't exist
-              - create schema under new version
-              - create documentation and collection from schema
-              - handle errors...do we need to roll back or can we re-run?
-       */
-    });
-}
-exports.updatePostmanApi = updatePostmanApi;
-function makeRequest(req) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const res = yield axios_1.default.request(req);
-        // TODO: return response error
-        if (res.status !== 200) {
-            throw new Error('received non 200 response');
-        }
-        return res.data;
-    });
-}
-// const main = async () => {
-//   try {
-//     // TODO: will need to validate the spec...creating the schema via Postman does not seem to validate it. Postman
-//     // will accept an invalid spec and then throw 'invalid spec' errors when attempting to generate artifacts from it (collections, documentation, etc)
-//     console.log('reading spec file')
-//     const rawSpec = fs.readFileSync('./swagger.json', 'utf-8')
-//     const specJSON = JSON.parse(rawSpec)
-//     const specOasVersion = specJSON.openapi
-//     const specApiVersion = specJSON.info.version
-//     console.log(`spec oas version is ${specOasVersion}`)
-//     console.log(`spec api version is: ${specApiVersion}`)
-//     console.log(`retrieving Postman API ${apiId}`)
-//     const getAPIRes = await axios({
-//       method: 'get',
-//       url: `https://api.getpostman.com/apis/${apiId}`,
-//       headers: {
-//         'x-api-key': apiKey,
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     const apiName = getAPIRes.data.api.name
-//     console.log(`retrieving versions for Postman API ${apiName}`)
-//     const getVersionsRes = await axios({
-//       method: 'get',
-//       url: `https://api.getpostman.com/apis/${apiId}/versions`,
-//       headers: {
-//         'x-api-key': apiKey,
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     console.log(
-//       `searching Postman API versions for a version named ${specApiVersion}`
-//     )
-//     /*
-//             Check if there is already a version in Postman for this API version, based on the spec file
-//             It is assumed that changes to a schema always correspond with a version update. Otherwise, consumers
-//             of the API would not be notified of the change.
-//             TODO: to make this smarter over time with existing APIs we'll need to:
-//                 - check if there is a schema associated with the version.
-//                 - check if the spec is specifying a new oas version within the same api version. For example, under 1.0.0 there could be
-//                   an existing schema under OAS 2.0 and the new spec is updagraded to OAS 3.0.
-//                 - check if there are relations associated to this version such as documentation, collections, etc
-//                 - to support non schema related changes under the same version, we can preform an object diff on parts
-//                     of the spec that are not the schema (info, description, etc) and update those parts accordingly.
-//         */
-//     const matchedVersions = getVersionsRes.data.versions.filter(v => {
-//       return v.name === specApiVersion
-//     })
-//     if (matchedVersions.length >= 1) {
-//       console.log(
-//         `existing Postman API version found for ${specApiVersion}. Exiting`
-//       )
-//       return
-//     }
-//     console.log('creating new Postman version')
-//     const createVersionBody = {
-//       version: {
-//         name: specApiVersion
-//       }
-//     }
-//     const createVersionReq = {
-//       method: 'post',
-//       url: `https://api.getpostman.com/apis/${apiId}/versions`,
-//       headers: {
-//         'x-api-key': apiKey,
-//         'Content-Type': 'application/json'
-//       },
-//       data: JSON.stringify(createVersionBody)
-//     }
-//     createVersionRes = await axios(createVersionReq)
-//     const newVersionId = createVersionRes.data.version.id
-//     console.log(
-//       `Successfully created new Postman API version ${newVersionId}. Adding schema to version`
-//     )
-//     // TODO: Use the spec file to determin which openapi type to use in addition to the language (YAML or JSON)
-//     const createSchemaBody = {
-//       schema: {
-//         language: 'json',
-//         type: 'openapi2',
-//         schema: rawSpec
-//       }
-//     }
-//     const createSchemaReq = {
-//       method: 'post',
-//       url: `https://api.getpostman.com/apis/${apiId}/versions/${newVersionId}/schemas`,
-//       headers: {
-//         'x-api-key': apiKey,
-//         'Content-Type': 'application/json'
-//       },
-//       data: JSON.stringify(createSchemaBody)
-//     }
-//     const createSchemaRes = await axios(createSchemaReq)
-//     const newSchemaId = createSchemaRes.data.schema.id
-//     console.log(
-//       `Successfully added schema ${newSchemaId}. Creating new collection and documentation under workspace ${workspaceId}`
-//     )
-//     // TODO: use input params to determine if a collection should be created as well as what other relations
-//     const createCollectionBody = {
-//       name: `${apiName}-${specApiVersion}`,
-//       relations: [
-//         {
-//           type: 'documentation'
-//         }
-//       ]
-//     }
-//     const createCollectionReq = {
-//       method: 'post',
-//       url: `https://api.getpostman.com/apis/${apiId}/versions/${newVersionId}/schemas/${newSchemaId}/collections?workspace=${workspaceId}`,
-//       headers: {
-//         'x-api-key': apiKey,
-//         'Content-Type': 'application/json'
-//       },
-//       data: JSON.stringify(createCollectionBody)
-//     }
-//     const createCollectionRes = await axios(createCollectionReq)
-//     console.log(
-//       `Successfully created collection ${createCollectionRes.data.collection.id}`
-//     )
-//     console.log('all done!')
-//   } catch (e) {
-//     console.log(e)
-//   }
-// }
-// main().catch(e => {
-//   console.error(`unhandled error in main(): ${e}`)
-// })
-
-
-/***/ }),
+/* 85 */,
 /* 86 */,
 /* 87 */
 /***/ (function(module) {
@@ -3080,16 +2882,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const config_1 = __webpack_require__(478);
-const api_1 = __webpack_require__(85);
+const client_1 = __webpack_require__(718);
+const service_1 = __webpack_require__(891);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const config = config_1.getConfig();
             core.info(`using config: ${JSON.stringify(config)}`);
-            yield api_1.updatePostmanApi(config);
+            const client = new client_1.PostmanClient(config.postmanApiKey);
+            const service = new service_1.PostmanService(client);
+            core.info('starting Postman api updgarde');
+            yield service.upgradeApi(config);
         }
         catch (error) {
-            core.setFailed(error.message);
+            const e = new Error(`could not upgrade api: ${error}`);
+            core.setFailed(e);
         }
     });
 }
@@ -12373,6 +12180,7 @@ const envFilePath = __webpack_require__.ab + ".env";
 var PostmanSchemaType;
 (function (PostmanSchemaType) {
     PostmanSchemaType["OpenApi2"] = "openapi2";
+    PostmanSchemaType["OpenApi3"] = "openapi3";
 })(PostmanSchemaType = exports.PostmanSchemaType || (exports.PostmanSchemaType = {}));
 function getConfig() {
     /*
@@ -18511,7 +18319,131 @@ function finalize (parser) {
 /* 715 */,
 /* 716 */,
 /* 717 */,
-/* 718 */,
+/* 718 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PostmanClient = void 0;
+const axios_1 = __importDefault(__webpack_require__(53));
+const postmanApiBaseURL = 'https://api.getpostman.com';
+class PostmanClient {
+    constructor(apiKey) {
+        this.client = axios_1.default.create({
+            baseURL: postmanApiBaseURL
+        });
+        this.client.interceptors.request.use(this._setHeaders(apiKey));
+        this.client.interceptors.response.use();
+    }
+    getApi(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const p = `apis/${id}`;
+            try {
+                const api = yield this.client.get(p);
+                return api.data.api;
+            }
+            catch (error) {
+                throw new Error(`non-200 response calling ${p}: ${error.message}`);
+            }
+        });
+    }
+    getApiVersions(apiId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const p = `apis/${apiId}/versions`;
+            try {
+                const api = yield this.client.get(p);
+                return api.data.versions;
+            }
+            catch (error) {
+                throw new Error(`non-200 response calling ${p}: ${error.message}`);
+            }
+        });
+    }
+    createApiVersion(apiId, versionNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const p = `apis/${apiId}/versions`;
+            try {
+                const body = {
+                    version: {
+                        name: versionNumber
+                    }
+                };
+                const res = yield this.client.post(p, body);
+                return res.data.version;
+            }
+            catch (error) {
+                throw new Error(`non-200 response calling ${p}: ${error.message}`);
+            }
+        });
+    }
+    createApiSchema(apiId, versionId, schemaType, schemaLanguage, schema) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const p = `/apis/${apiId}/versions/${versionId}/schemas`;
+            try {
+                const body = {
+                    schema: {
+                        language: schemaLanguage,
+                        type: schemaType,
+                        schema
+                    }
+                };
+                console.dir(body);
+                const res = yield this.client.post(p, body);
+                return res.data.schema;
+            }
+            catch (error) {
+                throw new Error(`non-200 response calling ${p}: ${error.message}`);
+            }
+        });
+    }
+    createCollectionWithDocumentation(apiId, versionId, schemaId, workspaceId, collectionName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const p = `/apis/${apiId}/versions/${versionId}/schemas/${schemaId}/collections?worksapce=${workspaceId}`;
+            try {
+                const body = {
+                    name: collectionName,
+                    relations: [
+                        {
+                            type: 'documentation'
+                        }
+                    ]
+                };
+                const res = yield this.client.post(p, body);
+                return res.data.collection;
+            }
+            catch (error) {
+                throw new Error(`non-200 response calling ${p}: ${error.message}`);
+            }
+        });
+    }
+    // factory function to create the request interceptor to add auth headers
+    // this is needed to get around 'unbounded this' issues
+    // see: https://github.com/typescript-eslint/typescript-eslint/blob/v3.7.0/packages/eslint-plugin/docs/rules/unbound-method.md
+    _setHeaders(apiKey) {
+        return (req) => {
+            req.headers['x-api-key'] = apiKey;
+            req.headers['Content-Type'] = 'application/json';
+            return req;
+        };
+    }
+}
+exports.PostmanClient = PostmanClient;
+
+
+/***/ }),
 /* 719 */,
 /* 720 */,
 /* 721 */,
@@ -21569,7 +21501,95 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 /* 888 */,
 /* 889 */,
 /* 890 */,
-/* 891 */,
+/* 891 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PostmanService = void 0;
+const config_1 = __webpack_require__(478);
+const swagger_parser_1 = __importDefault(__webpack_require__(151));
+const core = __importStar(__webpack_require__(470));
+const path = __importStar(__webpack_require__(622));
+class PostmanService {
+    constructor(client) {
+        this.postmanClient = client;
+    }
+    // TODO:
+    //    - this needs to be idempotent
+    //    - researching upserting an api (i.e. first time run)
+    upgradeApi(config) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Validate other kinds of specs like GraphQL and RAML
+            if (!(config.specFileType === config_1.PostmanSchemaType.OpenApi2 ||
+                config.specFileType === config_1.PostmanSchemaType.OpenApi3)) {
+                throw new Error(`only API spces of ${config_1.PostmanSchemaType.OpenApi2} and ${config_1.PostmanSchemaType.OpenApi3}`);
+            }
+            core.info(`validating schema document at ${config.specFilePath}`);
+            // TODO: if info and info.version are not required do a validation check
+            const specDoc = yield swagger_parser_1.default.validate(config.specFilePath);
+            core.info(`retrieving Postman API ${config.postmanApiId}`);
+            const api = yield this.postmanClient.getApi(config.postmanApiId);
+            core.info(`seraching for api version ${specDoc.info.version}`);
+            const apiVersions = yield this.postmanClient.getApiVersions(api.id);
+            const matchedVersions = apiVersions.filter(v => v.name === specDoc.info.version);
+            if (matchedVersions.length >= 1) {
+                core.info(`found an existing api version for ${specDoc.info.version}. Exiting`);
+                return;
+            }
+            core.info('no existing version found. Creating new api version');
+            const apiVersion = yield this.postmanClient.createApiVersion(api.id, specDoc.info.version);
+            core.info(`successfully created api version ${apiVersion.name}`);
+            core.info(`creating version schema`);
+            // TODO: this won't work for yaml files with a .yml
+            // valid values here are 'json' and 'yaml'
+            // TODO: add better validation
+            const schemaLanguage = path.extname(config.specFilePath).slice(1);
+            const schema = yield this.postmanClient.createApiSchema(api.id, apiVersion.id, config.specFileType, schemaLanguage, JSON.stringify(specDoc));
+            core.info(`successfully created version schema ${schema.id}`);
+            core.info('creating collection and documentation from schema');
+            const collectionName = `${api.name}-v${apiVersion.name}`;
+            yield this.postmanClient.createCollectionWithDocumentation(api.id, apiVersion.id, schema.id, config.postmanWorkspaceId, collectionName);
+            core.info(`successfully create collection ${collectionName}`);
+        });
+    }
+}
+exports.PostmanService = PostmanService;
+
+
+/***/ }),
 /* 892 */,
 /* 893 */,
 /* 894 */,
