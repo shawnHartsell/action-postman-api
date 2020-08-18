@@ -24,7 +24,8 @@ In a nutshell, the script works in the following way:
 - If a version already exists, the process aborts. Otherwise a version is created, a schema is created under that version, and a collection and documentation are generated in the provided Postman workspace
 
 ## TODO:
-- write tests :D
+- write tests (unit and the actions test) :D
+- make the process idempotent for retries (i.e. check for existance of existing resources, etc)
 - support all supported Postman specs (i.e. find validators for each one)
 - fully support YAML files (i.e. mapping .yaml/.yml to Postman's `yaml` spec type)
 - try and upsert the Postman API
