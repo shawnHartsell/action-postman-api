@@ -29,7 +29,7 @@
     "@actions/core": "^1.2.4",
     "@apidevtools/swagger-parser": "^10.0.1",
     "@types/semver": "^7.3.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "openapi-types": "^7.0.0",
     "semver": "^7.3.2"
